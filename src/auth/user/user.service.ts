@@ -1,13 +1,13 @@
 import {UserModel} from "@shop-app-package/common";
 import {User} from './user.model';
-import {CreateUserDto} from '../dtos/auth.dto'
+import {AuthDto} from '../dtos/auth.dto'
 
 export class UserService {
   constructor (
     public userModel: UserModel
   ) {}
 
-  async create (createUserDto: CreateUserDto) {
+  async create (createUserDto: AuthDto) {
     const user = new this.userModel({
       email: createUserDto.email,
       password: createUserDto.password

@@ -5,6 +5,8 @@ import express, {Application} from 'express';
 import cors from 'cors';
 import cookieSession from 'cookie-session';
 import mongoose from 'mongoose';
+import {errorHandler} from '@shop-app-package/common';
+import {authRouters} from './auth/auth.routers';
 
 export class AppModule {
   constructor (public app: Application) {
@@ -17,7 +19,10 @@ export class AppModule {
     app.use(cookieSession({
       signed: false,
       secure: false
-    }))
+    }));
+
+    app.use(authRouters);
+    app.use(errorHandler);
   };
 
   async start() {
