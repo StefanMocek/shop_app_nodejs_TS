@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import {ProductModel} from "@shop-app-package/common";
+import {ProductModeln, uploadDir} from "@shop-app-package/common";
 import {CreateProductDto} from "../dtos/product.dto";
 import {Product} from "./product.model";
 const uploadDir = 'upload/'
