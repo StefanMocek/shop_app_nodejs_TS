@@ -1,9 +1,8 @@
 import fs from 'fs';
 import path from 'path';
-import {ProductModeln, uploadDir} from "@shop-app-package/common";
+import {ProductModel, uploadDir} from "@shop-app-package/common";
 import {CreateProductDto} from "../dtos/product.dto";
 import {Product} from "./product.model";
-const uploadDir = 'upload/'
 
 export class ProductService {
   constructor (public productModel: ProductModel) {};

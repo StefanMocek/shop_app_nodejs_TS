@@ -1,5 +1,6 @@
 import {NextFunction, Request, Response, Router} from 'express';
-import { BadRequestError, Uploader, UploaderMiddlewareOptions } from '@shop-app-package/common';
+import {BadRequestError, Uploader, UploaderMiddlewareOptions, requireAuth} from '@shop-app-package/common';
+import {sellerService} from './seller.service';
 
 const router = Router();
 
@@ -11,18 +12,25 @@ const middlewareOptions: UploaderMiddlewareOptions = {
 
 const multipleFilesMiddleware = uploader.uploadMultipleFiles(middlewareOptions);
 
-router.post('/product/new',multipleFilesMiddleware, async (req: Request, res: Response, next: NextFunction) => {
+router.post('/product/new',requireAuth, multipleFilesMiddleware, async (req: Request, res: Response, next: NextFunction) => {
   const {title, price} = req.body;
 
-  if(!req.files) {
+  if (!req.files) {
     return next(new BadRequestError('images are required'))
   }
-  
-  if(req.uploaderError) {
+
+  if (req.uploaderError) {
     return next(new BadRequestError(req.uploaderError.message));
   };
 
-  
-}) 
+  const product = await sellerService.addProduct({
+    title, 
+    price, 
+    userId: req.currentUser!.userId, 
+    files: req.files
+  });
+
+  res.status(201).send(product);
+})
 
 export {router as sellerRouters}
