@@ -31,6 +31,8 @@ router.post('/product/new',requireAuth, multipleFilesMiddleware, async (req: Req
   });
 
   res.status(201).send(product);
-})
+});
+
+router.post('/product/:id/update')
 
 export {router as sellerRouters}

@@ -1,8 +1,15 @@
 import {Request} from "express";
 
 export interface CreateProductDto {
+  userId: string,
   title: string,
   price: number,
-  userId: string,
   files: Request['files']
+};
+
+export interface UpdateProductDto {
+  userId: string,
+  title: string,
+  price: number,
+  productId: string
 }
