@@ -1,12 +1,15 @@
 import fs from 'fs';
 import path from 'path';
-import {ProductModel} from "@shop-app-package/common";
-import {CreateProductDto} from "../dtos/product.dto";
+import {ProductModel, uploadDir} from "@shop-app-package/common";
+import {CreateProductDto, UpdateProductDto} from "../dtos/product.dto";
 import {Product} from "./product.model";
-const uploadDir = 'upload/'
 
 export class ProductService {
   constructor (public productModel: ProductModel) {};
+
+  async getOneById (productId: string) {
+    return await this.productModel.findById(productId)
+  }
 
   async create(createProductDto: CreateProductDto) {
     const images = this.generateProductImages(createProductDto.files)
@@ -18,6 +21,13 @@ export class ProductService {
     });
     return await product.save()
   };
+
+  async updateProduct(updateProductDto: UpdateProductDto) {
+    return await this.productModel.findOneAndUpdate(
+      {_id: updateProductDto.productId},
+      {$set: {title: updateProductDto.title, price: updateProductDto.price}},
+      {new: true})
+  }
 
   generateBase64Url(contentType: string, buffer: Buffer) {
     return `data:${contentType};base64,${buffer.toString('base64')}`

@@ -5,7 +5,7 @@ import express, {Application} from 'express';
 import cors from 'cors';
 import cookieSession from 'cookie-session';
 import mongoose from 'mongoose';
-import {errorHandler} from '@shop-app-package/common';
+import {errorHandler, currentUser} from '@shop-app-package/common';
 import {authRouters} from './auth/auth.routers';
 
 export class AppModule {
@@ -21,8 +21,6 @@ export class AppModule {
       secure: false
     }));
 
-    app.use(authRouters);
-    app.use(errorHandler);
   };
 
   async start() {
@@ -38,6 +36,10 @@ export class AppModule {
     } catch (error) {
       throw new Error('database connection error')
     };
+
+    this.app.use(currentUser(process.env.JWT_KEY))
+    this.app.use(authRouters);
+    this.app.use(errorHandler);
 
     this.app.listen(process.env.PORT, () => {
       console.log(`Server is listening on port ${process.env.PORT}`);
