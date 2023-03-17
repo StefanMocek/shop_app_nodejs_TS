@@ -13,3 +13,8 @@ export interface UpdateProductDto {
   price: number,
   productId: string
 }
+
+export interface DeleteProductDto {
+  userId: string,
+  productId: string
+}

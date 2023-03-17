@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import {ProductModel, uploadDir} from "@shop-app-package/common";
-import {CreateProductDto, UpdateProductDto} from "../dtos/product.dto";
+import {CreateProductDto, DeleteProductDto, UpdateProductDto} from "../dtos/product.dto";
 import {Product} from "./product.model";
 
 export class ProductService {
@@ -27,6 +27,10 @@ export class ProductService {
       {_id: updateProductDto.productId},
       {$set: {title: updateProductDto.title, price: updateProductDto.price}},
       {new: true})
+  };
+
+  async deleteProduct(deleteProductDto: DeleteProductDto) {
+    return await this.productModel.findOneAndRemove({_id: deleteProductDto.productId})
   }
 
   generateBase64Url(contentType: string, buffer: Buffer) {
