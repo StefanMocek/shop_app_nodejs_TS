@@ -43,7 +43,18 @@ router.post('/product/:id/update',requireAuth, async (req: Request, res: Respons
     return next(result);
   };
 
-  res.status(200).send(result)
-})
+  res.status(200).send(result);
+});
+
+router.delete('/product/:id/delete',requireAuth, async (req: Request, res: Response, next: NextFunction) => {
+  const {id} = req.params;
+
+  const result = await sellerService.deleteProduct({userId: req.currentUser!.userId, productId: id});
+  if (result instanceof CustomError) {
+    return next(result);
+  };
+
+  res.status(200).send(true);
+});
 
 export {router as sellerRouters}
