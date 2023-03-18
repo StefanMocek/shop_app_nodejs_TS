@@ -1,5 +1,5 @@
 import {BadRequestError, NotAuthorizedError} from "@shop-app-package/common";
-import {CreateProductDto, DeleteProductDto, UpdateProductDto} from "./dtos/product.dto";
+import {AddImagesDto, CreateProductDto, DeleteProductDto, UpdateProductDto} from "./dtos/product.dto";
 import {ProductService, productService} from "./product/product.service";
 
 export class SellerService {
@@ -33,6 +33,18 @@ export class SellerService {
     };
 
     return await this.productService.deleteProduct(deleteProductDto);
+  };
+
+  async addProductImages(addImagesDto: AddImagesDto) {
+    const product = await this.productService.getOneById(addImagesDto.productId);
+    if(!product) {
+      return new BadRequestError('Product dont found')
+    };
+    if(product.user.toString() !== addImagesDto.userId) {
+      return new NotAuthorizedError()
+    };
+
+    return await this.productService.addImages(addImagesDto);
   }
 };
 

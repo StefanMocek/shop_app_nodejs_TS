@@ -57,4 +57,14 @@ router.delete('/product/:id/delete',requireAuth, async (req: Request, res: Respo
   res.status(200).send(true);
 });
 
+router.post('/product/:id/add-images',requireAuth, async (req: Request, res: Response, next: NextFunction) => {
+  const {id} = req.params;
+
+  const result = await sellerService.addProductImages({userId: req.currentUser!.userId, productId: id, files: req.files});
+  if (result instanceof CustomError) {
+    return next(result);
+  };
+  res.status(200).send(result);
+})
+
 export {router as sellerRouters}

@@ -1,13 +1,13 @@
 import fs from 'fs';
 import path from 'path';
 import {ProductModel, uploadDir} from "@shop-app-package/common";
-import {CreateProductDto, DeleteProductDto, UpdateProductDto} from "../dtos/product.dto";
+import {AddImagesDto, CreateProductDto, DeleteProductDto, UpdateProductDto} from "../dtos/product.dto";
 import {Product} from "./product.model";
 
 export class ProductService {
-  constructor (public productModel: ProductModel) {};
+  constructor(public productModel: ProductModel) { };
 
-  async getOneById (productId: string) {
+  async getOneById(productId: string) {
     return await this.productModel.findById(productId)
   }
 
@@ -31,16 +31,25 @@ export class ProductService {
 
   async deleteProduct(deleteProductDto: DeleteProductDto) {
     return await this.productModel.findOneAndRemove({_id: deleteProductDto.productId})
+  };
+
+  async addImages(addImagesDto: AddImagesDto) {
+    const images = this.generateProductImages(addImagesDto.files);
+    return await this.productModel.findOneAndUpdate(
+      {_id: addImagesDto.productId},
+      {$push: {images: {$each: images}}},
+      {new: true}
+    );
   }
 
   generateBase64Url(contentType: string, buffer: Buffer) {
     return `data:${contentType};base64,${buffer.toString('base64')}`
   }
- 
+
   generateProductImages(files: CreateProductDto['files']): Array<{src: string}> {
     let images: Array<Express.Multer.File>;
 
-    if(typeof files === 'object') {
+    if (typeof files === 'object') {
       images = Object.values(files).flat()
     } else {
       images = files ? [...files] : []
@@ -48,7 +57,7 @@ export class ProductService {
 
     return images.map((file: Express.Multer.File) => {
       let srcObj = {src: this.generateBase64Url(file.mimetype, fs.readFileSync(path.join(uploadDir + file.filename)))};
-      fs.unlink(path.join(uploadDir, file.filename), () => {});
+      fs.unlink(path.join(uploadDir, file.filename), () => { });
       return srcObj;
     });
   }
