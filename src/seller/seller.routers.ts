@@ -57,14 +57,35 @@ router.delete('/product/:id/delete',requireAuth, async (req: Request, res: Respo
   res.status(200).send(true);
 });
 
-router.post('/product/:id/add-images',requireAuth, async (req: Request, res: Response, next: NextFunction) => {
+router.post('/product/:id/add-images',requireAuth, multipleFilesMiddleware, async (req: Request, res: Response, next: NextFunction) => {
   const {id} = req.params;
+
+  if (!req.files) {
+    return next(new BadRequestError('images are required'))
+  }
+
+  if (req.uploaderError) {
+    return next(new BadRequestError(req.uploaderError.message));
+  };
 
   const result = await sellerService.addProductImages({userId: req.currentUser!.userId, productId: id, files: req.files});
   if (result instanceof CustomError) {
     return next(result);
   };
   res.status(200).send(result);
-})
+});
+
+router.post('/product/:id/delete-images',requireAuth, async (req: Request, res: Response, next: NextFunction) => {
+  const {id} = req.params;
+  const {imagesIds} = req.body;
+
+  const result = await sellerService.deleteProductImages({userId: req.currentUser!.userId, productId: id, imagesIds});
+  
+  if (result instanceof CustomError) {
+    return next(result);
+  };
+  
+  res.status(200).send(result);
+});
 
 export {router as sellerRouters}

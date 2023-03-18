@@ -23,4 +23,10 @@ export interface AddImagesDto {
   userId: string,
   productId: string
   files: Request['files']
-}
+};
+
+export interface DeleteImagesDto {
+  userId: string,
+  productId: string,
+  imagesIds: Array<string>
+};

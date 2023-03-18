@@ -1,7 +1,12 @@
 import fs from 'fs';
 import path from 'path';
 import {ProductModel, uploadDir} from "@shop-app-package/common";
-import {AddImagesDto, CreateProductDto, DeleteProductDto, UpdateProductDto} from "../dtos/product.dto";
+import {
+  AddImagesDto, 
+  CreateProductDto,
+  DeleteImagesDto, 
+  DeleteProductDto, 
+  UpdateProductDto} from "../dtos/product.dto";
 import {Product} from "./product.model";
 
 export class ProductService {
@@ -40,6 +45,14 @@ export class ProductService {
       {$push: {images: {$each: images}}},
       {new: true}
     );
+  };
+
+  async deleteImages(deleteImagesDto: DeleteImagesDto){ 
+    return await this.productModel.findOneAndUpdate(
+      {_id: deleteImagesDto.productId},
+      {$pull: {images: { _id: {$in: deleteImagesDto.imagesIds}}}},
+      {new: true}
+    )
   }
 
   generateBase64Url(contentType: string, buffer: Buffer) {
