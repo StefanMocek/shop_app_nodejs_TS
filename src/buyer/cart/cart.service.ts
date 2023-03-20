@@ -1,5 +1,5 @@
 import {CartModel, CartProductModel, ProductDoc} from "@shop-app-package/common";
-import {AddProductToCartDto, CreateCartProductDto} from "../dtos/cart.dto";
+import {AddProductToCartDto, CreateCartProductDto, RemoveProductFromCartDto} from "../dtos/cart.dto";
 import {CartProduct} from "./cart-product.model";
 import {Cart} from "./cart.model";
 
@@ -35,6 +35,26 @@ export class CartService {
     return !!(await this.cartProductModel.findOne({cartId, product: productId}))
   };
 
+  async removeProductFromCart(removeProductFromCartDto: RemoveProductFromCartDto){
+    const {cartId, productId} = removeProductFromCartDto;
+    const cartProduct = await this.cartProductModel.findOne({product: productId}).populate('product')
+    if(!cartProduct){
+      return null
+    };
+
+    const deletedDoc = await this.cartProductModel.findOneAndRemove({_id: cartProduct._id});
+    if(!deletedDoc) {
+      return null
+    };
+
+    return await this.cartModel.findOneAndUpdate(
+      {_id: cartId},
+      {$pull: {products: cartProduct._id}, 
+      $inc: {totalPrice: -(cartProduct.product.price * cartProduct.quantity)}},
+      {new: true}
+    )
+  }
+
   async updateProductQuantity (cartId: string, productId: string, options: {inc: boolean, amount: number}){
     const {inc, amount} = options;
     const cartProduct = await this.cartProductModel.findOne({product: productId});
@@ -42,7 +62,7 @@ export class CartService {
       return null
     };
     if(cartProduct.quantity < amount && !inc){
-
+      return await this.removeProductFromCart({cartId, productId})
     };
 
     const updatedCartProduct = await this.cartProductModel.findOneAndUpdate(
