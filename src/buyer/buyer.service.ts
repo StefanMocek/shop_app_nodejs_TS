@@ -1,7 +1,7 @@
 import {BadRequestError} from "@shop-app-package/common";
 import {ProductService, productService} from "../seller/product/product.service";
 import {CartService, cartService} from "./cart/cart.service";
-import {AddProductToCartDto, UpdateCartProductQuantityDto} from "./dtos/cart.dto";
+import {AddProductToCartDto, RemoveProductFromCartDto, UpdateCartProductQuantityDto} from "./dtos/cart.dto";
 
 export class BuyerService {
   constructor(
@@ -27,12 +27,27 @@ export class BuyerService {
     const {productId, cartId} = updateCartProductQuantityDto;
     const cartProduct = await this.cartService.getCartProductById(productId, cartId);
     if(!cartProduct) {
-      return new BadRequestError('Product not found in cart')  ;   
+      return new BadRequestError('Product not found in cart');   
     };
 
     const cart =  await this.cartService.updateProductQuantity(updateCartProductQuantityDto);
     if (!cart) {
       return new Error('Couldnt add product to cart');
+    };
+
+    return cart;
+  };
+
+  async removeProductFromCart(removeProductFromCartDto: RemoveProductFromCartDto){
+    const {cartId, productId} = removeProductFromCartDto;
+    const cartProduct = await this.cartService.getCartProductById(productId, cartId);
+    if(!cartProduct) {
+      return new BadRequestError('Product not found in cart');   
+    };
+
+    const cart = await this.cartService.removeProductFromCart(removeProductFromCartDto);
+    if (!cart) {
+      return new Error('Couldnt remove product from cart');
     };
 
     return cart;

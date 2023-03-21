@@ -30,8 +30,19 @@ router.post('/cart/:cartId/product/:id/update-quantity', requireAuth, async (req
   if(result instanceof CustomError || result instanceof Error) {
     return next(result)
   };
-  
-  res.status(200).send(result)
+
+  res.status(200).send(result);
+});
+
+router.post('/cart/delete/product', requireAuth, async (req: Request, res: Response, next: NextFunction) => {
+  const {cartId, productId} = req.body;
+
+  const result = await buyerService.removeProductFromCart({cartId, productId});
+  if(result instanceof CustomError || result instanceof Error) {
+    return next(result)
+  };
+
+  res.status(200).send(result);
 })
 
 export {router as buyerRouter}
