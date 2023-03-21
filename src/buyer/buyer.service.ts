@@ -1,3 +1,4 @@
+import Stripe from 'stripe'
 import {BadRequestError, NotAuthorizedError} from "@shop-app-package/common";
 import {ProductService, productService} from "../seller/product/product.service";
 import {CartService, cartService} from "./cart/cart.service";
@@ -5,12 +6,13 @@ import {
   AddProductToCartDto, 
   RemoveProductFromCartDto, 
   UpdateCartProductQuantityDto} from "./dtos/cart.dto";
-import Stripe from 'stripe'
+import {OrderService, orderService} from "./order/order.service";
 
 export class BuyerService {
   constructor(
     public cartService: CartService,
     public productService: ProductService,
+    public orderService: OrderService,
     public stripeService: Stripe
   ){}
 
@@ -77,18 +79,26 @@ export class BuyerService {
       return new BadRequestError('Your cart is empty');
     };
 
-    const {id} = await this.stripeService.customers.create({
-      email: userEmail,
-      source: cardToken
-    });
-    if(!id) {
+    let customerId: string;
+    if(cart.customerId) {
+      customerId = cart.customerId
+    } else {
+      const {id} = await this.stripeService.customers.create({
+        email: userEmail,
+        source: cardToken
+      });
+      customerId = id;
+      await cart.set({customerId}).save();
+    };
+
+    if(!customerId) {
       return new BadRequestError('Invalid data');
     };
 
     const charge = await this.stripeService.charges.create({
       amount: cart.totalPrice * 100,
       currency: 'pln',
-      customer: id
+      customer: customerId
     });
 
     if(!charge) {
@@ -96,8 +106,14 @@ export class BuyerService {
     };
 
     // create new order
+    await this.orderService.createOrder({
+      userId,
+      totalAmount: cart.totalPrice,
+      chargeId: charge.id
+    })
 
     // clear cart
+    await this.cartService.clearCart(userId, cart._id)
 
     return charge;
   }
@@ -106,5 +122,6 @@ export class BuyerService {
 export const buyerService = new BuyerService(
   cartService, 
   productService,
+  orderService,
   new Stripe(process.env.STRIPE_KEY!, {apiVersion: '2022-11-15'})
 );
