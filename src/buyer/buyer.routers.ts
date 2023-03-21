@@ -13,12 +13,18 @@ router.post('/cart/add',requireAuth, async (req: Request, res: Response, next: N
     return next(result)
   };
 
+  req.session = {...req.session, cartId: result._id};
+
   res.status(200).send(result)
 });
 
-router.post('/cart/:cartId/product/:id/update-quantity', requireAuth, async (req: Request, res: Response, next: NextFunction) => {
+router.post('/cart/product/:id/update-quantity', requireAuth, async (req: Request, res: Response, next: NextFunction) => {
   const {amount} = req.body;
-  const {cartId, id: productId} = req.params;
+  const {id: productId} = req.params;
+  const cartId = req.session?.cartId;
+  if(!cartId) {
+    return next(new BadRequestError('cartId is required'));
+  }
 
   const inc = req.body.inc ==="true" ? true : req.body.inc ==="false" ? false : null;
   if (inc === null) {
@@ -35,7 +41,11 @@ router.post('/cart/:cartId/product/:id/update-quantity', requireAuth, async (req
 });
 
 router.post('/cart/delete/product', requireAuth, async (req: Request, res: Response, next: NextFunction) => {
-  const {cartId, productId} = req.body;
+  const {productId} = req.body;
+  const cartId = req.session?.cartId;
+  if(!cartId) {
+    return next(new BadRequestError('cartId is required'));
+  }
 
   const result = await buyerService.removeProductFromCart({cartId, productId});
   if(result instanceof CustomError || result instanceof Error) {
@@ -46,7 +56,10 @@ router.post('/cart/delete/product', requireAuth, async (req: Request, res: Respo
 });
 
 router.post('/get/cart/:cartId', requireAuth, async (req: Request, res: Response, next: NextFunction) => {
-  const {cartId} = req.params;
+  const cartId = req.session?.cartId;
+  if(!cartId) {
+    return next(new BadRequestError('cartId is required'));
+  }
   const result = await buyerService.getCart(cartId, req.currentUser!.userId);
   if(result instanceof CustomError || result instanceof Error) {
     return next(result)
