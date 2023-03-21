@@ -75,7 +75,7 @@ export class CartService {
       ? updatedCartProduct!.product.price * amount
       : -(updatedCartProduct!.product.price * amount);
 
-    const upadtedCart = await this.cartModel.findOneAndUpdate(
+    return await this.cartModel.findOneAndUpdate(
       {_id:cartId},
       {$inc: { totalPrice: newPrice }},
       {new: true}
