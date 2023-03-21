@@ -1,5 +1,5 @@
 import {CartModel, CartProductModel, ProductDoc} from "@shop-app-package/common";
-import {AddProductToCartDto, CreateCartProductDto, RemoveProductFromCartDto} from "../dtos/cart.dto";
+import {AddProductToCartDto, CreateCartProductDto, UpdateCartProductQuantityDto, RemoveProductFromCartDto} from "../dtos/cart.dto";
 import {CartProduct} from "./cart-product.model";
 import {Cart} from "./cart.model";
 
@@ -12,6 +12,10 @@ export class CartService {
   async findOneByUserId(userId: string){
     return await this.cartModel.findOne({user: userId})
   };
+
+  async getCartProductById(productId: string, cartId: string) {
+    return this.cartProductModel.findOne({product: productId, cart: cartId})
+  }
 
   async createCart(userId: string){
     const cart = new this.cartModel({
@@ -55,8 +59,9 @@ export class CartService {
     )
   }
 
-  async updateProductQuantity (cartId: string, productId: string, options: {inc: boolean, amount: number}){
-    const {inc, amount} = options;
+  async updateProductQuantity (updateCartProductQuantityDto: UpdateCartProductQuantityDto){
+    const {inc, amount} = updateCartProductQuantityDto.options;
+    const {productId, cartId} = updateCartProductQuantityDto;
     const cartProduct = await this.cartProductModel.findOne({product: productId});
     if(!cartProduct) {
       return null
@@ -89,7 +94,7 @@ export class CartService {
     const isProductInCart = cart && await this.isProductInCart(cart._id, productId);
 
     if(isProductInCart && cart){
-      return this.updateProductQuantity(cart._id, productId, {inc: true, amount: quantity})
+      return this.updateProductQuantity({cartId: cart._id, productId, options: {inc: true, amount: quantity}})
     }
     
     if(!cart) {
