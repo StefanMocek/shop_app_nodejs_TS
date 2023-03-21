@@ -7,6 +7,7 @@ import {
   RemoveProductFromCartDto, 
   UpdateCartProductQuantityDto} from "./dtos/cart.dto";
 import {OrderService, orderService} from "./order/order.service";
+import {Cart} from './cart/cart.model';
 
 export class BuyerService {
   constructor(
@@ -116,6 +117,23 @@ export class BuyerService {
     await this.cartService.clearCart(userId, cart._id)
 
     return charge;
+  };
+
+  async updateCustomerStripeCard(userId: string, newCardToken: string){
+    const cart = await this.cartService.findOneByUserId(userId);
+    if(!cart || !cart.customerId) {
+      return new BadRequestError('You\'re not a customer');
+    };
+
+    try {
+      await this.stripeService.customers.update(cart.customerId, {
+        source: newCardToken
+      });
+    } catch (err) {
+      return new Error('Cant update the card')
+    }
+
+    return true
   }
 };
 
