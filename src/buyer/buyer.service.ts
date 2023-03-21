@@ -13,19 +13,29 @@ export class BuyerService {
     const product = await this.productService.getOneById(addProductToCartDto.productId);
     if(!product){
       return new BadRequestError('Product not found')
-    }
+    };
 
-    return this.cartService.addProduct(addProductToCartDto, product)
+    const cart = await this.cartService.addProduct(addProductToCartDto, product);
+    if (!cart) {
+      return new Error('Couldnt add product to cart');
+    };
+
+    return cart;
   };
 
   async uptadeCartproductQuantity(updateCartProductQuantityDto: UpdateCartProductQuantityDto){
     const {productId, cartId} = updateCartProductQuantityDto;
     const cartProduct = await this.cartService.getCartProductById(productId, cartId);
     if(!cartProduct) {
-      return new BadRequestError('Product not found in cart')     
+      return new BadRequestError('Product not found in cart')  ;   
     };
 
-    return await this.cartService.updateProductQuantity(updateCartProductQuantityDto);
+    const cart =  await this.cartService.updateProductQuantity(updateCartProductQuantityDto);
+    if (!cart) {
+      return new Error('Couldnt add product to cart');
+    };
+
+    return cart;
   }
 }
 
