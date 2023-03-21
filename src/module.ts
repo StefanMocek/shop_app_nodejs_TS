@@ -31,6 +31,9 @@ export class AppModule {
     if (!process.env.JWT_KEY) {
       throw new Error('JWT_KEY is require')
     };
+    if (!process.env.STRIPE_KEY) {
+      throw new Error('STRIPE_KEY is require')
+    };
   
     try {
       await mongoose.connect(process.env.MONGO_URL)
