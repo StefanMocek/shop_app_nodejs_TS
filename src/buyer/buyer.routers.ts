@@ -66,6 +66,22 @@ router.post('/get/cart/:cartId', requireAuth, async (req: Request, res: Response
   };
 
   res.status(200).send(result);
+});
+
+router.post('/payment/checkout', requireAuth, async (req: Request, res: Response, next: NextFunction) => {
+  const {cardToken} = req.body;
+
+  const result = await buyerService.checkOut(
+    req.currentUser!.userId,
+    cardToken,
+    req.currentUser!.email
+  );
+
+  if(result instanceof CustomError) {
+    return next(result)
+  };
+
+  res.status(200).send(result.id);
 })
 
 export {router as buyerRouter}
