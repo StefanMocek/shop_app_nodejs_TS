@@ -43,6 +43,16 @@ router.post('/cart/delete/product', requireAuth, async (req: Request, res: Respo
   };
 
   res.status(200).send(result);
+});
+
+router.post('/get/cart/:cartId', requireAuth, async (req: Request, res: Response, next: NextFunction) => {
+  const {cartId} = req.params;
+  const result = await buyerService.getCart(cartId, req.currentUser!.userId);
+  if(result instanceof CustomError || result instanceof Error) {
+    return next(result)
+  };
+
+  res.status(200).send(result);
 })
 
 export {router as buyerRouter}

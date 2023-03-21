@@ -1,4 +1,4 @@
-import {BadRequestError} from "@shop-app-package/common";
+import {BadRequestError, NotAuthorizedError} from "@shop-app-package/common";
 import {ProductService, productService} from "../seller/product/product.service";
 import {CartService, cartService} from "./cart/cart.service";
 import {AddProductToCartDto, RemoveProductFromCartDto, UpdateCartProductQuantityDto} from "./dtos/cart.dto";
@@ -51,7 +51,20 @@ export class BuyerService {
     };
 
     return cart;
-  }
-}
+  };
 
-export const buyerService = new BuyerService(cartService, productService)
+  async getCart(cartId: string, userId: string){
+    const cart = await this.cartService.getCart(cartId);
+    if (!cart) {
+      return new BadRequestError('Cart not found');
+    };
+
+    if (cart.user.toString() !== userId){
+      return new NotAuthorizedError()
+    };
+
+    return cart;
+  };
+};
+
+export const buyerService = new BuyerService(cartService, productService);
