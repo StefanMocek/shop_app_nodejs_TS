@@ -4,8 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "build": "tsc",
     "compile": "tsc && node ./dist/src/main.js",
-    "start": "nodemon -e ts --exec \"npm run compile\""
+    "start:dev": "nodemon -e ts --exec \"npm run compile\"",
+    "start": "node ./dist/src/main.js"
   },
   "keywords": [],
   "author": "",
@@ -23,6 +25,7 @@
     "stripe": "^11.15.0"
   },
   "devDependencies": {
-    "nodemon": "^2.0.21"
+    "nodemon": "^2.0.21",
+    "typescript": "^5.0.2"
   }
 }
