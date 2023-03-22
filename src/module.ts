@@ -8,6 +8,7 @@ import mongoose from 'mongoose';
 import {errorHandler, currentUser} from '@shop-app-package/common';
 import {authRouters} from './auth/auth.routers';
 import {sellerRouters} from './seller/seller.routers';
+import {buyerRouter} from './buyer/buyer.routers';
 
 export class AppModule {
   constructor (public app: Application) {
@@ -41,9 +42,10 @@ export class AppModule {
       throw new Error('database connection error')
     };
 
-    this.app.use(currentUser(process.env.JWT_KEY))
+    this.app.use(currentUser(process.env.JWT_KEY));
     this.app.use(authRouters);
     this.app.use(sellerRouters);
+    this.app.use(buyerRouter);
     this.app.use(errorHandler);
 
     this.app.listen(process.env.PORT, () => {
