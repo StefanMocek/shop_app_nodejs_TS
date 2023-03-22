@@ -27,4 +27,8 @@ jobs:
           heroku_app_name: shop-app-sm
           heroku_email: "etktuzudu@gmail.com"
           appdir: "dist"
+        env: 
+          HD_MONGO_URL: ${{secrets.MONGO_URL}}
+          HD_JWT_KEY: ${{secrets.JWT_KEY}}
+          HD_STRIPE_KEY: ${{secrets.STRIPE_KEY}}
           
