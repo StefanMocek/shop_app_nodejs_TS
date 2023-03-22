@@ -14,6 +14,7 @@ export class AppModule {
   constructor (public app: Application) {
     app.set('trust proxy', true);
     app.use(cors({
+      credentials: true,
       optionsSuccessStatus: 200
     }))
     app.use(express.urlencoded({extended: false}));
@@ -23,6 +24,7 @@ export class AppModule {
       secure: false
     }));
 
+    Object.setPrototypeOf(this, AppModule.prototype);
   };
 
   async start() {
