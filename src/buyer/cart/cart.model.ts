@@ -3,7 +3,7 @@ import {CartDoc, CartModel} from '@shop-app-package/common';
 
 const cartSchema = new mongoose.Schema({
   user: {
-    tyoe: mongoose.Schema.Types.ObjectId,
+    type: mongoose.Schema.Types.ObjectId,
     ref: "User",
     required: true
   },
